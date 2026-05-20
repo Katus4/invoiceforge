@@ -3,6 +3,7 @@ package ch.invoiceforge.core.validation;
 import ch.invoiceforge.core.model.Address;
 import ch.invoiceforge.core.model.Company;
 import ch.invoiceforge.core.model.Customer;
+import ch.invoiceforge.core.model.DocumentType;
 import ch.invoiceforge.core.model.Invoice;
 import ch.invoiceforge.core.model.InvoiceItem;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,16 @@ class InvoiceValidatorTest {
         Invoice invoice = validInvoice();
 
         assertDoesNotThrow(() -> InvoiceValidator.requireValid(invoice));
+    }
+
+    @Test
+    void acceptsCustomVatPercentagesAndQuoteWithoutDueDate() {
+        Invoice quote = validInvoice()
+                .setDocumentType(DocumentType.QUOTE)
+                .setDueDate(null)
+                .setItems(List.of(new InvoiceItem("Consulting", 1, 120.00, 2.6)));
+
+        assertDoesNotThrow(() -> InvoiceValidator.requireValid(quote));
     }
 
     @Test

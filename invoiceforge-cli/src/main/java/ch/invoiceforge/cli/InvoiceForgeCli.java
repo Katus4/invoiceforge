@@ -74,8 +74,9 @@ public final class InvoiceForgeCli {
     }
 
     private static void createPdf(String inputPath, String outputPath, DocumentType documentType) throws Exception {
-        Invoice invoice = readValidInvoice(inputPath);
+        Invoice invoice = InvoiceJsonExporter.read(Path.of(inputPath));
         invoice.setDocumentType(documentType);
+        InvoiceValidator.requireValid(invoice);
         InvoicePdfGenerator.generate(invoice, outputPath);
         System.out.println("PDF written: " + outputPath);
     }

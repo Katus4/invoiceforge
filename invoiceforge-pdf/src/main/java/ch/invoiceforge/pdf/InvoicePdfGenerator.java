@@ -124,10 +124,18 @@ public final class InvoicePdfGenerator {
         float x = cursor.right - 190;
         cursor.text("Datum", x, cursor.y, 9, BOLD, MUTED);
         cursor.text(invoice.getInvoiceDate().format(DATE_FORMAT), x + 78, cursor.y, 9, FONT, INK);
-        cursor.text("Faellig", x, cursor.y - 15, 9, BOLD, MUTED);
-        cursor.text(invoice.getDueDate().format(DATE_FORMAT), x + 78, cursor.y - 15, 9, FONT, INK);
-        cursor.text("Waehrung", x, cursor.y - 30, 9, BOLD, MUTED);
-        cursor.text(invoice.getCurrency(), x + 78, cursor.y - 30, 9, FONT, INK);
+        float metaY = cursor.y - 15;
+        if (invoice.getDocumentType() == DocumentType.INVOICE && invoice.getDueDate() != null) {
+            cursor.text("Faellig", x, metaY, 9, BOLD, MUTED);
+            cursor.text(invoice.getDueDate().format(DATE_FORMAT), x + 78, metaY, 9, FONT, INK);
+            metaY -= 15;
+        } else if (invoice.getDocumentType() == DocumentType.QUOTE && invoice.getDueDate() != null) {
+            cursor.text("Gueltig bis", x, metaY, 9, BOLD, MUTED);
+            cursor.text(invoice.getDueDate().format(DATE_FORMAT), x + 78, metaY, 9, FONT, INK);
+            metaY -= 15;
+        }
+        cursor.text("Waehrung", x, metaY, 9, BOLD, MUTED);
+        cursor.text(invoice.getCurrency(), x + 78, metaY, 9, FONT, INK);
 
         cursor.y -= 86;
     }
@@ -189,6 +197,12 @@ public final class InvoicePdfGenerator {
     }
 
     private static void drawPaymentInfo(Invoice invoice, PdfCursor cursor) throws IOException {
+        if (invoice.getDocumentType() != DocumentType.INVOICE) {
+            if (invoice.getNotes() != null) {
+                cursor.text(invoice.getNotes(), cursor.left, cursor.y, 10, FONT, INK);
+            }
+            return;
+        }
         Company company = invoice.getCompany();
         cursor.text("Zahlungsinformationen", cursor.left, cursor.y, 11, BOLD, INK);
         cursor.y -= 16;
@@ -258,7 +272,7 @@ public final class InvoicePdfGenerator {
     }
 
     private static boolean shouldAppendSwissQrBill(Invoice invoice) {
-        if (invoice.getDocumentType() == DocumentType.QUOTE) {
+        if (invoice.getDocumentType() != DocumentType.INVOICE) {
             return false;
         }
         Company company = invoice.getCompany();

@@ -16,7 +16,7 @@ InvoiceForge currently supports:
 - generating Swiss QR bill payment pages for CHF/EUR invoices with an IBAN
 - validating invoice input before totals, exports, PDFs, and HTTP responses
 - calculating net, VAT, and gross totals
-- item-level VAT and discount handling
+- item-level custom VAT percentages and discount handling
 - exporting invoices as JSON and CSV
 - loading invoice data from JSON
 - using a command-line interface for local automation
@@ -107,6 +107,23 @@ Invoice invoice = new Invoice()
 InvoicePdfGenerator.generate(invoice, "invoice.pdf");
 ```
 
+Each `InvoiceItem` sets its own VAT percentage as the fourth constructor argument.
+You can use the standard Swiss rates or your own custom percentage:
+
+```java
+Invoice invoice = new Invoice()
+        .addItem(new InvoiceItem("Standard service", 1, 100.00, 8.1))
+        .addItem(new InvoiceItem("Reduced-rate item", 2, 50.00, 2.6))
+        .addItem(new InvoiceItem("VAT-free item", 1, 25.00, 0));
+
+// You can also change VAT later with the fluent setter.
+invoice.addItem(new InvoiceItem()
+        .setDescription("Custom VAT item")
+        .setQuantity(1)
+        .setUnitPrice(75.00)
+        .setVatRate(3.7));
+```
+
 ## HTTP Tool Server
 
 Start the server:
@@ -128,6 +145,7 @@ Available endpoints:
 ## Example Input
 
 See [`examples/invoice.json`](examples/invoice.json) for a complete invoice payload with company, customer, items, VAT rates, and payment information.
+Payment terms and Swiss QR payment pages are printed only for invoices, not quotes or receipts.
 
 ## Requirements
 

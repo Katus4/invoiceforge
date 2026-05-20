@@ -7,6 +7,9 @@ dependency-reduced-pom.xml
 *.pdf
 *.csv
 
+# Local agent instructions
+AGENTS.md
+
 # Compiled class file
 *.class
 

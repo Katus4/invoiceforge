@@ -31,7 +31,9 @@ public final class InvoiceValidator {
         requirePresent(issues, "documentType", invoice.getDocumentType());
         requireText(issues, "invoiceNumber", invoice.getInvoiceNumber());
         requirePresent(issues, "invoiceDate", invoice.getInvoiceDate());
-        requirePresent(issues, "dueDate", invoice.getDueDate());
+        if (invoice.getDocumentType() != null && invoice.getDocumentType().name().equals("INVOICE")) {
+            requirePresent(issues, "dueDate", invoice.getDueDate());
+        }
         validateDueDate(issues, invoice.getInvoiceDate(), invoice.getDueDate());
         validateCurrency(issues, invoice.getCurrency());
         validateCompany(issues, invoice.getCompany());
