@@ -1,0 +1,44 @@
+{
+  "documentType": "INVOICE",
+  "invoiceNumber": "RE-2026-0001",
+  "invoiceDate": "2026-05-20",
+  "dueDate": "2026-06-19",
+  "currency": "CHF",
+  "company": {
+    "name": "Demo GmbH",
+    "address": {
+      "street": "Industriestrasse 5",
+      "postalCode": "3000",
+      "city": "Bern",
+      "country": "CH"
+    },
+    "email": "info@example.com",
+    "iban": "CH93 0076 2011 6238 5295 7",
+    "paymentTerms": "Zahlbar innert 30 Tagen."
+  },
+  "customer": {
+    "name": "Max Mueller",
+    "address": {
+      "street": "Bahnhofstrasse 1",
+      "postalCode": "8001",
+      "city": "Zuerich",
+      "country": "CH"
+    }
+  },
+  "items": [
+    {
+      "description": "Webdesign",
+      "quantity": 10,
+      "unitPrice": 85.00,
+      "vatRate": 8.1,
+      "discountRate": 0
+    },
+    {
+      "description": "Hosting",
+      "quantity": 1,
+      "unitPrice": 120.00,
+      "vatRate": 8.1,
+      "discountRate": 0
+    }
+  ]
+}
