@@ -2,9 +2,9 @@
 
 [![Java](https://img.shields.io/badge/Java-17%2B-blue)](https://openjdk.org/)
 [![Build](https://img.shields.io/badge/build-Maven-blue)](https://maven.apache.org/)
-[![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-orange)](LICENSE)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
-Source-available Java library and command-line toolkit for creating invoices, quotes, receipts, PDF documents, and invoice exports.
+Open-source Java library and command-line toolkit for creating invoices, quotes, receipts, PDF documents, and invoice exports.
 
 InvoiceForge is designed as a small modular foundation for business document generation. It includes a reusable domain model, calculation utilities, PDF rendering, JSON/CSV export, a CLI, and a lightweight HTTP tool server for automation.
 
@@ -131,5 +131,4 @@ InvoiceForge is an early-stage library. The public API may still change before a
 
 ## License
 
-InvoiceForge is released under the [PolyForm Noncommercial License 1.0.0](LICENSE).
-Commercial use, including selling the library or products/services based on it, requires a separate license from the copyright holder.
+InvoiceForge is released under the [MIT License](LICENSE).
