@@ -13,6 +13,8 @@ InvoiceForge is designed as a small modular foundation for business document gen
 InvoiceForge currently supports:
 
 - generating invoice, quote, and receipt PDFs
+- generating Swiss QR bill payment pages for CHF/EUR invoices with an IBAN
+- validating invoice input before totals, exports, PDFs, and HTTP responses
 - calculating net, VAT, and gross totals
 - item-level VAT and discount handling
 - exporting invoices as JSON and CSV
@@ -56,6 +58,12 @@ Generate an invoice PDF:
 
 ```bash
 java -jar invoiceforge-cli/target/invoiceforge-cli-0.1.0-SNAPSHOT.jar create-invoice examples/invoice.json invoice.pdf
+```
+
+Validate invoice input:
+
+```bash
+java -jar invoiceforge-cli/target/invoiceforge-cli-0.1.0-SNAPSHOT.jar validate examples/invoice.json
 ```
 
 Generate a quote or receipt:
@@ -110,6 +118,7 @@ java -cp invoiceforge-mcp/target/invoiceforge-mcp-0.1.0-SNAPSHOT.jar ch.invoicef
 Available endpoints:
 
 - `GET /tools`
+- `POST /validate_invoice`
 - `POST /calculate_invoice_total`
 - `POST /export_invoice_json`
 - `POST /create_invoice_pdf`
@@ -132,3 +141,4 @@ InvoiceForge is an early-stage library. The public API may still change before a
 ## License
 
 InvoiceForge is released under the [MIT License](LICENSE).
+Third-party dependency notices are listed in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).

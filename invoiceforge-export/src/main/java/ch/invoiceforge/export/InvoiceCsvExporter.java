@@ -5,6 +5,7 @@ import ch.invoiceforge.core.calc.InvoiceTotals;
 import ch.invoiceforge.core.calc.TotalCalculator;
 import ch.invoiceforge.core.model.Invoice;
 import ch.invoiceforge.core.model.InvoiceItem;
+import ch.invoiceforge.core.validation.InvoiceValidator;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 
@@ -22,6 +23,7 @@ public final class InvoiceCsvExporter {
     }
 
     public static void export(Invoice invoice, Path outputPath) throws IOException {
+        InvoiceValidator.requireValid(invoice);
         try (Writer writer = Files.newBufferedWriter(outputPath);
              CSVPrinter csv = new CSVPrinter(writer, CSVFormat.DEFAULT.builder()
                      .setHeader("type", "invoiceNumber", "date", "dueDate", "description", "quantity",

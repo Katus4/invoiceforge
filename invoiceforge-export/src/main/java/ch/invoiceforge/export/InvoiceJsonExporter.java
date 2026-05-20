@@ -1,6 +1,7 @@
 package ch.invoiceforge.export;
 
 import ch.invoiceforge.core.model.Invoice;
+import ch.invoiceforge.core.validation.InvoiceValidator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -22,10 +23,12 @@ public final class InvoiceJsonExporter {
     }
 
     public static void export(Invoice invoice, Path outputPath) throws IOException {
+        InvoiceValidator.requireValid(invoice);
         MAPPER.writeValue(outputPath.toFile(), invoice);
     }
 
     public static String toJson(Invoice invoice) throws IOException {
+        InvoiceValidator.requireValid(invoice);
         return MAPPER.writeValueAsString(invoice);
     }
 

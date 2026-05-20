@@ -33,6 +33,7 @@
         <junit.version>5.10.3</junit.version>
         <jackson.version>2.17.2</jackson.version>
         <pdfbox.version>3.0.2</pdfbox.version>
+        <qrbill.version>3.4.0</qrbill.version>
         <commons-csv.version>1.11.0</commons-csv.version>
     </properties>
 
@@ -52,6 +53,11 @@
                 <groupId>org.apache.pdfbox</groupId>
                 <artifactId>pdfbox</artifactId>
                 <version>${pdfbox.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.codecrete.qrbill</groupId>
+                <artifactId>qrbill-generator</artifactId>
+                <version>${qrbill.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
