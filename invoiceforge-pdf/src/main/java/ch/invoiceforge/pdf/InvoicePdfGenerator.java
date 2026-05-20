@@ -18,7 +18,6 @@ import net.codecrete.qrbill.generator.OutputSize;
 import net.codecrete.qrbill.generator.QRBill;
 import net.codecrete.qrbill.generator.ValidationMessage;
 import net.codecrete.qrbill.generator.ValidationResult;
-import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
 import org.apache.pdfbox.pdmodel.PDPageContentStream;
@@ -44,6 +43,7 @@ public final class InvoicePdfGenerator {
     private static final Color MUTED = new Color(101, 112, 128);
     private static final Color RULE = new Color(214, 219, 226);
     private static final Color BAND = new Color(244, 247, 250);
+    private static final float QR_BILL_HEIGHT = 298;
 
     private InvoicePdfGenerator() {
     }
@@ -54,34 +54,7 @@ public final class InvoicePdfGenerator {
 
     public static void generate(Invoice invoice, Path outputPath) throws IOException {
         InvoiceValidator.requireValid(invoice);
-        if (shouldAppendSwissQrBill(invoice)) {
-            generateWithSwissQrBill(invoice, outputPath);
-            return;
-        }
         writeInvoicePages(invoice, outputPath);
-    }
-
-    private static void generateWithSwissQrBill(Invoice invoice, Path outputPath) throws IOException {
-        Path tempDirectory = outputPath.toAbsolutePath().getParent();
-        if (tempDirectory == null) {
-            tempDirectory = Path.of(".");
-        }
-        Path invoicePdf = Files.createTempFile(tempDirectory, "invoiceforge-invoice-", ".pdf");
-        Path qrBillPdf = Files.createTempFile(tempDirectory, "invoiceforge-qrbill-", ".pdf");
-        try {
-            Files.deleteIfExists(invoicePdf);
-            writeInvoicePages(invoice, invoicePdf);
-            Files.write(qrBillPdf, createSwissQrBill(invoice));
-
-            PDFMergerUtility merger = new PDFMergerUtility();
-            merger.addSource(invoicePdf.toFile());
-            merger.addSource(qrBillPdf.toFile());
-            merger.setDestinationFileName(outputPath.toString());
-            merger.mergeDocuments(null);
-        } finally {
-            Files.deleteIfExists(invoicePdf);
-            Files.deleteIfExists(qrBillPdf);
-        }
     }
 
     private static void writeInvoicePages(Invoice invoice, Path outputPath) throws IOException {
@@ -95,8 +68,10 @@ public final class InvoicePdfGenerator {
                 drawParties(invoice, cursor);
                 drawItems(invoice, cursor);
                 drawTotals(invoice, cursor);
-                drawPaymentInfo(invoice, cursor);
-                drawFooter(invoice, cursor);
+                drawPaymentInfo(document, invoice, cursor);
+                if (!shouldDrawSwissQrBill(invoice)) {
+                    drawFooter(invoice, cursor);
+                }
             }
 
             document.save(outputPath.toFile());
@@ -196,7 +171,7 @@ public final class InvoicePdfGenerator {
         cursor.y -= 42;
     }
 
-    private static void drawPaymentInfo(Invoice invoice, PdfCursor cursor) throws IOException {
+    private static void drawPaymentInfo(PDDocument document, Invoice invoice, PdfCursor cursor) throws IOException {
         if (invoice.getDocumentType() != DocumentType.INVOICE) {
             if (invoice.getNotes() != null) {
                 cursor.text(invoice.getNotes(), cursor.left, cursor.y, 10, FONT, INK);
@@ -214,12 +189,12 @@ public final class InvoicePdfGenerator {
             cursor.text(company.getPaymentTerms(), cursor.left, cursor.y, 10, FONT, INK);
             cursor.y -= 14;
         }
-        if (shouldAppendSwissQrBill(invoice)) {
-            cursor.text("Swiss QR-Bill payment part follows on the next page.", cursor.left, cursor.y, 9, FONT, MUTED);
-            cursor.y -= 14;
-        }
         if (invoice.getNotes() != null) {
             cursor.text(invoice.getNotes(), cursor.left, cursor.y, 10, FONT, INK);
+        }
+        if (shouldDrawSwissQrBill(invoice)) {
+            PDImageXObject qrBill = PDImageXObject.createFromByteArray(document, createSwissQrBill(invoice), "swiss-qr-bill");
+            cursor.content.drawImage(qrBill, 0, 0, cursor.pageWidth, QR_BILL_HEIGHT);
         }
     }
 
@@ -244,9 +219,10 @@ public final class InvoicePdfGenerator {
         bill.setUnstructuredMessage("Invoice " + invoice.getInvoiceNumber());
 
         BillFormat format = new BillFormat();
-        format.setGraphicsFormat(GraphicsFormat.PDF);
-        format.setOutputSize(OutputSize.A4_PORTRAIT_SHEET);
+        format.setGraphicsFormat(GraphicsFormat.PNG);
+        format.setOutputSize(OutputSize.QR_BILL_ONLY);
         format.setLanguage(Language.DE);
+        format.setResolution(300);
         bill.setFormat(format);
 
         ValidationResult validation = QRBill.validate(bill);
@@ -271,7 +247,7 @@ public final class InvoicePdfGenerator {
         return target;
     }
 
-    private static boolean shouldAppendSwissQrBill(Invoice invoice) {
+    private static boolean shouldDrawSwissQrBill(Invoice invoice) {
         if (invoice.getDocumentType() != DocumentType.INVOICE) {
             return false;
         }

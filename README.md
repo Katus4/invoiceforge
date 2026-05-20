@@ -13,7 +13,8 @@ InvoiceForge is designed as a small modular foundation for business document gen
 InvoiceForge currently supports:
 
 - generating invoice, quote, and receipt PDFs
-- generating Swiss QR bill payment pages for CHF/EUR invoices with an IBAN
+- generating Swiss QR bill payment parts on invoice PDFs for CHF/EUR invoices with an IBAN
+- optional automatic invoice numbers with configurable formats
 - validating invoice input before totals, exports, PDFs, and HTTP responses
 - calculating net, VAT, and gross totals
 - item-level custom VAT percentages and discount handling
@@ -60,6 +61,15 @@ Generate an invoice PDF:
 java -jar invoiceforge-cli/target/invoiceforge-cli-0.1.0-SNAPSHOT.jar create-invoice examples/invoice.json invoice.pdf
 ```
 
+Generate an invoice number automatically when the input has no `invoiceNumber`:
+
+```bash
+java -jar invoiceforge-cli/target/invoiceforge-cli-0.1.0-SNAPSHOT.jar create-invoice examples/invoice.json invoice.pdf --auto-number
+java -jar invoiceforge-cli/target/invoiceforge-cli-0.1.0-SNAPSHOT.jar create-invoice examples/invoice.json invoice.pdf --number-prefix INV --number-start 42 --number-format "{prefix}/{shortYear}/{month}/{seq}" --number-width 3
+```
+
+Supported number-format tokens are `{prefix}`, `{year}`, `{shortYear}`, `{month}`, `{day}`, `{seq}`, and `{sequence}`.
+
 Validate invoice input:
 
 ```bash
@@ -88,6 +98,7 @@ import ch.invoiceforge.core.model.Company;
 import ch.invoiceforge.core.model.Customer;
 import ch.invoiceforge.core.model.Invoice;
 import ch.invoiceforge.core.model.InvoiceItem;
+import ch.invoiceforge.core.number.InvoiceNumberGenerator;
 import ch.invoiceforge.pdf.InvoicePdfGenerator;
 
 import java.time.LocalDate;
@@ -105,6 +116,24 @@ Invoice invoice = new Invoice()
         .addItem(new InvoiceItem("Hosting", 1, 120.00, 8.1));
 
 InvoicePdfGenerator.generate(invoice, "invoice.pdf");
+```
+
+You can generate invoice numbers automatically in Java. `assignIfMissing` keeps an
+existing invoice number and only fills a blank one:
+
+```java
+InvoiceNumberGenerator numbers = new InvoiceNumberGenerator(
+        "INV",
+        42,
+        "{prefix}/{shortYear}/{month}/{seq}",
+        3
+);
+
+Invoice invoice = new Invoice()
+        .setInvoiceDate(LocalDate.of(2026, 5, 20));
+
+numbers.assignIfMissing(invoice);
+// invoiceNumber is now INV/26/05/042
 ```
 
 Each `InvoiceItem` sets its own VAT percentage as the fourth constructor argument.
@@ -145,7 +174,7 @@ Available endpoints:
 ## Example Input
 
 See [`examples/invoice.json`](examples/invoice.json) for a complete invoice payload with company, customer, items, VAT rates, and payment information.
-Payment terms and Swiss QR payment pages are printed only for invoices, not quotes or receipts.
+Payment terms and Swiss QR payment parts are printed only on invoice PDFs, not quotes or receipts.
 
 ## Requirements
 
